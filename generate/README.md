@@ -15,13 +15,13 @@ To use the program, follow these steps:
    cd generate
    ```
 3. Use cargo to run it:
-   '''
+   ```
    cargo run <n_subjects> <n_predicates> <n_objects> <n_triples>
-   '''
+   ```
    Example:
-   '''
+   ```
    cargo run 10 5 10 1000
-   '''
+   ```
    If the n_subjects * n_predicates * n_objects is smaller than the triples you will get repeated triples
 
    The files generated are in the outputs folder
