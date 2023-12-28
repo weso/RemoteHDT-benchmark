@@ -16,7 +16,18 @@ To use the program, follow these steps:
    ```
    cd generate
    ```
-3. Use cargo to run it:
+3. If you want to use it using bash:
+   ```
+   chmod +x generate_output.sh
+   ```
+   generate_output.sh <file_name> <n_nodes> <n_predicates> <n_triples>
+   ```
+   ./generate_output.sh test 100 10 10
+   ```
+   
+
+4. If you want to use it without a bash script (the outputs folder generated must be removed before each run)
+   Use cargo to run it:
    Usage: cargo run <n_nodes> <n_predicates> <n_triples>
    Usage: cargo run <file_name> <n_nodes> <n_predicates> <n_triples>
 
@@ -32,4 +43,6 @@ To use the program, follow these steps:
    ```
    Will output the file benchmar.nt
 
-   The files generated are in the outputs folder.
+
+
+5. The files generated are in the outputs folder.
