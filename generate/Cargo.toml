@@ -9,7 +9,7 @@ edition = "2021"
 remote-hdt = {git = "https://github.com/weso/RemoteHDT"}
 rand = "0.8"
 random_name_generator = "0.3.6"
-lazy_static = "1.4.0"
+
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = "0.5.0"
