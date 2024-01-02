@@ -1,0 +1,4 @@
+file_name,get_subject_time,get_object_time,get_predicate_time
+test1.zarr,1.038661ms,0ns,5.965µs
+test1.zarr,167.743µs,0ns,5.35µs
+test1.zarr,172.75µs,0ns,4.112µs

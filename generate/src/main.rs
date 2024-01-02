@@ -11,7 +11,8 @@ use std::vec::Vec;
 
 //default destination => outputs/benchmark.nt
 const FILE_NAME: &str = "benchmark";
-const FOLDER: &str = "outputs";
+//const FOLDER: &str = "outputs";
+const FOLDER: &str = "../zarr-files";
 //default destination => outputs/root.zarr
 const ZARR_NAME: &str = "root";
 
@@ -28,10 +29,10 @@ fn main() {
             let n_predicates: i128 = args[2].parse::<i128>().unwrap();
             let n_triples: i128 = args[3].parse::<i128>().unwrap();
 
-            create_benchmark(file_path, zarr_path, n_nodes, n_predicates, n_triples);
+            create_benchmark_database(file_path, zarr_path, n_nodes, n_predicates, n_triples);
         }
         5 => {
-            //Usage: cargo run <benchmarc_name> <n_nodes> <n_predicates> <n_triples>
+            //Usage: cargo run <benchmark_name> <n_nodes> <n_predicates> <n_triples>
             let file_path: String = format!("{}/{}.nt", FOLDER, args[1].parse::<String>().unwrap());
             let zarr_path: String =
                 format!("{}/{}.zarr", FOLDER, args[1].parse::<String>().unwrap());
@@ -39,7 +40,7 @@ fn main() {
             let n_predicates: i128 = args[3].parse::<i128>().unwrap();
             let n_triples: i128 = args[4].parse::<i128>().unwrap();
 
-            create_benchmark(file_path, zarr_path, n_nodes, n_predicates, n_triples);
+            create_benchmark_database(file_path, zarr_path, n_nodes, n_predicates, n_triples);
         }
         _ => {
             panic!(
@@ -52,7 +53,7 @@ fn main() {
     }
 }
 
-fn create_benchmark(
+fn create_benchmark_database(
     file_path: String,
     zarr_path: String,
     n_nodes: i128,
@@ -69,7 +70,7 @@ fn create_file_nt(
     n_predicates: i128,
     n_triples: i128,
 ) -> io::Result<()> {
-    //prerequisites for creating the benchmarc
+    //prerequisites for creating the benchmar
     let name_generator = RNG::from(&Language::Elven);
     let mut rng = rand::thread_rng();
     let _ = fs::create_dir(FOLDER);
@@ -114,6 +115,8 @@ fn create_file_nt(
             "<http://example.org/{}>    <http://example.org/{}>    <http://example.org/{}> .",
             s, p, o
         )?;
+
+       
     }
 
     Ok(())
