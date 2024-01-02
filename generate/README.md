@@ -41,8 +41,5 @@ To use the program, follow these steps:
    ```
    cargo run benchmark-custom-name 10 5 100
    ```
-   Will output the file benchmar.nt
+   Will output the file benchmark-custom-name.nt
 
-
-
-5. The files generated are in the outputs folder.

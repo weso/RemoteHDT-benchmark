@@ -1,0 +1,11 @@
+[package]
+authors = [ "Ángel Iglesias Préstamo <angel.iglesias.prestamo@gmail.com>", "Diego Martín Fernández <diegomartinfnz@gmail.com>" ]
+name = "bechmarks"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+remote-hdt = {git = "https://github.com/weso/RemoteHDT"}
+zarrs = { version = "0.8.0", default-features = false, features = [ "http", "gzip", "sharding" ] }
