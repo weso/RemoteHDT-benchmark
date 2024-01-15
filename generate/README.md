@@ -20,26 +20,8 @@ To use the program, follow these steps:
    ```
    chmod +x generate_output.sh
    ```
-   generate_output.sh <file_name> <n_nodes> <n_predicates> <n_triples>
+   generate_RDF.sh <file_name> <n_nodes> <n_predicates> <n_triples>
    ```
-   ./generate_output.sh test 100 10 10
+   ./generate_RDF.sh test 100 10 10
    ```
    
-
-4. If you want to use it without a bash script (the outputs folder generated must be removed before each run)
-   Use cargo to run it:
-   Usage: cargo run <n_nodes> <n_predicates> <n_triples>
-   Usage: cargo run <file_name> <n_nodes> <n_predicates> <n_triples>
-
-   ### Examples
-   
-   ```
-   cargo run 10 5 100
-   ```
-   Will output the file benchmar.nt
-
-   ```
-   cargo run benchmark-custom-name 10 5 100
-   ```
-   Will output the file benchmark-custom-name.nt
-
