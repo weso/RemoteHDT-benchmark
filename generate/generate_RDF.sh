@@ -25,4 +25,4 @@ if [ -d "outputs" ]; then
 fi
 
 # Run the cargo command
-cargo run $command_name $arg1 $arg2 $arg3
+cargo run --release $command_name $arg1 $arg2 $arg3
