@@ -45,7 +45,6 @@ fn main() {
         _ => {
             panic!(
                 "
-                Usage: cargo run <n_nodes> <n_predicates> <n_triples>
                 Usage: cargo run <file_name> <n_nodes> <n_predicates> <n_triples>
                 "
             );
