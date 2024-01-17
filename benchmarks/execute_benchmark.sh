@@ -18,4 +18,4 @@ arg1="$1"
 
 
 # Run the cargo command
-cargo run $arg1 
+cargo run --release $arg1 
