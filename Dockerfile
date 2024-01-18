@@ -1,17 +1,16 @@
-# Use a base image (you can choose a suitable base image for your needs)
-FROM alpine:latest
+# Use an official Python runtime as a parent image
+FROM python:3.8-slim
 
-# Set the working directory inside the container
+# Set the working directory to /app
 WORKDIR /app
 
-# Create a directory to store the files
-RUN mkdir /app/zarr-files
+# Copy all files inside the zarr-files directory into the container at /app/zarr-files/
+COPY ./zarr-files/* /app/zarr-files/
 
-# Copy all files from the host machine's zarr-files folder into the container
-COPY ./zarr-files /app/zarr-files
+# Make port 80 available to the world outside this container
+EXPOSE 80
 
-# Display the content of the copied folder (optional, for verification)
-RUN ls -l /app/zarr-files
+RUN ls -l /app/zarr-files/
 
-# Define the default command (you can customize this based on your needs)
-CMD ["echo", "Container is ready!"]
+# Run a simple HTTP server when the container launches
+CMD ["python", "-m", "http.server", "80"]
