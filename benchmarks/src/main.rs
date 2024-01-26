@@ -1,7 +1,9 @@
 
 use remote_hdt::engine::EngineStrategy;
 use remote_hdt::storage::tabular::TabularLayout;
+use remote_hdt::storage::HTTPStorage;
 use remote_hdt::storage::LocalStorage;
+
 
 use std::time::Instant;
 use std::time::Duration;
@@ -16,6 +18,7 @@ const DATABASE_FOLDER: &str = "../zarr-files";
 const BENCHMARK_RESULTS_DESTINATION_FOLDER:  &str = "../results";
 const BENCHMARK_RESULTS_DESTINATION_FILE:  &str = "../results/benchmark.csv";
 const CSV_HEADER: &str = "file_name,get_subject_time,get_predicate_time,get_object_time";
+const DATABASE_URL: &str = "http://localhost:8000";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -39,12 +42,19 @@ fn execute_all(iterations: u8){
 
     for file in files {
         for _ in 0..iterations {
-            let benchmark_result = execute_benchmarks_with_zarr_rdf_database(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
+            //let benchmark_result = execute_remote_benchmarks(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
+            let benchmark_result = execute_local_benchmarks(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
+
             times.push((file.clone() , benchmark_result));
         }
         
+        for _ in 0..iterations {
+            
+            let benchmark_result = execute_remote_benchmarks(&format!("{}/{}", DATABASE_URL, file.clone()));
+
+            times.push((file.clone() , benchmark_result));
+        }
     }
-    
     write_csv(times);
     
 }
@@ -68,13 +78,21 @@ fn get_dot_zarr_files() -> Vec<String>{
 /**
  * commented lines are for when the get predicate operation is implemented
  */
-fn execute_benchmarks_with_zarr_rdf_database(zarr_path: &str) -> (Duration,Duration,Duration){
+fn execute_local_benchmarks(zarr_path: &str) -> (Duration,Duration,Duration){
     let subject_time = execute_subject_time(zarr_path);
 //    let predicate_time = execute_predicate_time(zarr_path);
     let object_time = execute_object_time(zarr_path);
 //    (subject_time,predicate_time,object_time)
       (subject_time,Duration::new(0, 0),object_time)
 }   
+
+fn execute_remote_benchmarks(zarr_path: &str) -> (Duration,Duration,Duration){
+    let subject_time = execute_subject_time_remote(zarr_path);
+    (subject_time,Duration::new(0, 0),Duration::new(0, 0))
+}   
+
+
+
 
 fn execute_subject_time(zarr_path: &str) -> std::time::Duration{
     let database = LocalStorage::new(TabularLayout).load(zarr_path).unwrap();
@@ -85,6 +103,16 @@ fn execute_subject_time(zarr_path: &str) -> std::time::Duration{
 
     subject_time
 }
+
+fn execute_subject_time_remote(zarr_url: &str) -> std::time::Duration{
+    let database = HTTPStorage::new(TabularLayout).connect("http://localhost:8000/n50-p10-t10.zarr").unwrap();
+    let before = Instant::now();
+    let _ = database.get_subject(0);
+    let subject_time = before.elapsed();
+
+    subject_time
+}
+
 
 /** 
 fn execute_predicate_time(zarr_path: &str) -> std::time::Duration{
