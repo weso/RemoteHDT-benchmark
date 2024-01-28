@@ -1,0 +1,9 @@
+
+docker stop my-nginx-container
+docker rm my-nginx-container
+
+docker build -t my-nginx-server .
+docker run -d -p 8080:80 --name my-nginx-container my-nginx-server
+
+
+curl http://localhost:8080/

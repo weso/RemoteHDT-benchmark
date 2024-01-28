@@ -1,5 +1,0 @@
-
-//run with sudo if error => ERROR: Cannot connect to the Docker daemon
-docker build -t zarr-http-server .
-docker run -p 8080:80 zarr-http-server
-http://localhost:8080/your_zarr_file.zarr
