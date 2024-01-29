@@ -61,12 +61,12 @@ Generates the RDF "database" in Zarr and Ntriples format so you can bench in oth
 
 ## Contributing
 
-Encourage others to contribute to the project. Specify guidelines for bug reports, feature requests, and code contributions.
+TO BE DONE
 
 ## License
 
-Specify the license under which your RDF Benchmarks project is distributed.
+TO BE DONE
 
 ## Acknowledgments
 
-Give credit to individuals or projects whose code, libraries, or resources were used or served as inspiration.
+TO BE DONE
