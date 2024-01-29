@@ -10,11 +10,9 @@ if [ -f "$EXECUTE_BENCHMARK_SCRIPT" ] && [ -d "$BENCHMARKS_DIR" ]; then
     # Enter the benchmarks directory
     cd "$BENCHMARKS_DIR" || exit
 
-    # Specify the parameter you want to pass to execute_benchmark.sh
-    PARAMETER="$1"
 
     # Execute the execute_benchmark.sh script with the parameter
-    "$EXECUTE_BENCHMARK_SCRIPT" "$PARAMETER"
+    "$EXECUTE_BENCHMARK_SCRIPT" "$1" "$2"
 
     # Return to the original directory
     cd - || exit

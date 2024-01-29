@@ -24,25 +24,40 @@ const DATABASE_URL: &str = "http://localhost:8080";
 fn main() {
     let args: Vec<String> = env::args().collect();
 
+    if &args.len() != &(3 as usize){
+        panic!("
+            Usage cargo run <type_of_benchmark> <number_of_iterations>
+            type_of_benchmark = local || remote || all
+        ")
 
-    match args.len() {
-        2 =>{
-            let iterations: u8 = args[1].parse::<u8>().unwrap();
-            execute_all(iterations);
+    }
+   
+    let type_of_benchmark = args[1].parse::<String>().unwrap();
+    let iterations: u8 = (&args[2]).parse::<u8>().unwrap();
+    let zarr_files = &get_dot_zarr_files();
+
+    match type_of_benchmark.as_str() {
+        "local" =>{
+            local_execution(iterations,zarr_files);
+        },
+        "remote" =>{
+            remote_execution(iterations,zarr_files);
+        },
+        "all" =>{
+            execute_all(iterations, zarr_files);
         },
         _ =>{
-            execute_all(3);
+            execute_all(iterations, zarr_files);
         }
     }
+
+
 }
 
 
-fn execute_all(iterations: u8){
-    let files = get_dot_zarr_files();
-
+fn execute_all(iterations: u8, files:&Vec<String>){
     local_execution(iterations,&files);
-    remote_execution(iterations, &files);
-    
+    remote_execution(iterations, &files);   
 }
 
 
