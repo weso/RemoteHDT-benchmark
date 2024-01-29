@@ -16,9 +16,10 @@ use std::io::Write;
 
 const DATABASE_FOLDER: &str = "../zarr-files";
 const BENCHMARK_RESULTS_DESTINATION_FOLDER:  &str = "../results";
-const BENCHMARK_RESULTS_DESTINATION_FILE:  &str = "../results/benchmark.csv";
+const BENCHMARK_RESULTS_DESTINATION_FILE_LOCAL:  &str = "../results/local_benchmark.csv";
+const BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE:  &str = "../results/remote_benchmark.csv";
 const CSV_HEADER: &str = "file_name,get_subject_time,get_predicate_time,get_object_time";
-const DATABASE_URL: &str = "http://localhost:8000";
+const DATABASE_URL: &str = "http://localhost:8080";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -38,27 +39,48 @@ fn main() {
 
 fn execute_all(iterations: u8){
     let files = get_dot_zarr_files();
+
+    local_execution(iterations,&files);
+    remote_execution(iterations, &files);
+    
+}
+
+
+fn local_execution(iterations: u8, files:&Vec<String>){
+    
     let mut times : Vec<(String, (Duration,Duration,Duration))> = vec![];
 
     for file in files {
         for _ in 0..iterations {
-            //let benchmark_result = execute_remote_benchmarks(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
             let benchmark_result = execute_local_benchmarks(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
 
             times.push((file.clone() , benchmark_result));
         }
         
+        
+    }
+    write_csv(times,BENCHMARK_RESULTS_DESTINATION_FILE_LOCAL);
+
+}
+
+
+
+fn remote_execution(iterations: u8, files:&Vec<String>){
+    
+    let mut times : Vec<(String, (Duration,Duration,Duration))> = vec![];
+
+    for file in files {
         for _ in 0..iterations {
-            
             let benchmark_result = execute_remote_benchmarks(&format!("{}/{}", DATABASE_URL, file.clone()));
 
             times.push((file.clone() , benchmark_result));
         }
+        
+        
     }
-    write_csv(times);
-    
-}
+    write_csv(times,BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE);
 
+}
 
 fn get_dot_zarr_files() -> Vec<String>{
     let paths = fs::read_dir(DATABASE_FOLDER).unwrap();
@@ -86,8 +108,8 @@ fn execute_local_benchmarks(zarr_path: &str) -> (Duration,Duration,Duration){
       (subject_time,Duration::new(0, 0),object_time)
 }   
 
-fn execute_remote_benchmarks(zarr_path: &str) -> (Duration,Duration,Duration){
-    let subject_time = execute_subject_time_remote(zarr_path);
+fn execute_remote_benchmarks(zarr_url: &str) -> (Duration,Duration,Duration){
+    let subject_time = execute_subject_time_remote(zarr_url);
     (subject_time,Duration::new(0, 0),Duration::new(0, 0))
 }   
 
@@ -105,7 +127,7 @@ fn execute_subject_time(zarr_path: &str) -> std::time::Duration{
 }
 
 fn execute_subject_time_remote(zarr_url: &str) -> std::time::Duration{
-    let database = HTTPStorage::new(TabularLayout).connect("http://localhost:8000/n50-p10-t10.zarr").unwrap();
+    let database = HTTPStorage::new(TabularLayout).connect(zarr_url).unwrap();
     let before = Instant::now();
     let _ = database.get_subject(0);
     let subject_time = before.elapsed();
@@ -135,13 +157,13 @@ fn execute_object_time(zarr_path: &str) -> std::time::Duration{
     object_time
 }
 
-fn write_csv(times: Vec<(String, (Duration, Duration, Duration))>){
+fn write_csv(times: Vec<(String, (Duration, Duration, Duration))>, destination_file: &str){
 
     if !folder_exists(&BENCHMARK_RESULTS_DESTINATION_FOLDER) {
         create_folder(&BENCHMARK_RESULTS_DESTINATION_FOLDER);
     }
     
-    let mut file = File::create(BENCHMARK_RESULTS_DESTINATION_FILE).unwrap();
+    let mut file = File::create(destination_file).unwrap();
     
     writeln!(file, "{}", CSV_HEADER).unwrap();
 

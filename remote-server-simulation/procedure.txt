@@ -6,4 +6,5 @@ docker build -t my-nginx-server .
 docker run -d -p 8080:80 --name my-nginx-container my-nginx-server
 
 
-curl http://localhost:8080/
+curl http://localhost:8080/n50-p10-t100.zarr/group/zarr.json
+curl http://localhost:8080/n50-p10-t200.zarr/group/zarr.json
