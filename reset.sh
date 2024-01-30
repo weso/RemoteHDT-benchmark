@@ -3,6 +3,7 @@
 # Specify the paths to the folders you want to delete
 RESULTS_FOLDER="./results"
 ZARR_FILES_FOLDER="./zarr-files"
+NT_FILES="./nt-files"
 
 # Check if the folders exist before attempting to delete them
 if [ -d "$RESULTS_FOLDER" ] || [ -d "$ZARR_FILES_FOLDER" ]; then
@@ -11,6 +12,8 @@ if [ -d "$RESULTS_FOLDER" ] || [ -d "$ZARR_FILES_FOLDER" ]; then
 
     # Delete the zarr-files folder and its contents
     rm -rf "$ZARR_FILES_FOLDER"
+
+    rm -rf "$NT_FILES"
 
     echo "Folders deleted successfully."
 else

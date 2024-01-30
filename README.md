@@ -36,11 +36,32 @@ Having linux installed and rust
 
 ### Usage
 
-Standard process for running the project
+Standard process for running the project in local mode
+
 ```
 ./reset.sh 
 ./generate_RDF.sh <file_name> <n_nodes> <n_predicates> <n_triples> 
-./execute_benchmark.sh <number_of_iterations>
+./execute_benchmark.sh local <number_of_iterations>
+```
+
+Standard process for running the project with also remote benchmarking. For that set <type_of_benchmark> to "remote" or "all" 
+
+```
+./reset.sh 
+./generate_RDF.sh <file_name> <n_nodes> <n_predicates> <n_triples>
+./start_remote_server_simulation
+./execute_benchmark.sh <type_of_benchmark> <number_of_iterations>
+./stop_remote_server_simulation
+```
+
+Example of use case
+
+```
+./reset.sh 
+./generate_RDF.sh n50-p10-t300 50 10 300
+sudo ./start_remote_server_simulation.sh
+./execute_benchmark.sh all 5
+sudo ./stop_remote_server_simulation.sh
 ```
 
 #### reset.sh

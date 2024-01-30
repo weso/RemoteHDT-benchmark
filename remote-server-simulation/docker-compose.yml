@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  nginx-zarr-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nginx-zarr-server
+    ports:
+      - "8080:80"
+    container_name: nginx-zarr-container
+    restart: unless-stopped
+  

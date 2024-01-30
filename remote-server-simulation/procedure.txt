@@ -2,9 +2,12 @@
 docker stop my-nginx-container
 docker rm my-nginx-container
 
-docker build -t my-nginx-server .
-docker run -d -p 8080:80 --name my-nginx-container my-nginx-server
 
+# Build the Docker image
+docker build -t nginx-zarr-server .
+
+# Run the Docker container in detached mode, mapping port 8080 on the host to port 80 in the container
+docker run -d -p 8080:80 --name nginx-zarr-container nginx-zarr-server
 
 curl http://localhost:8080/n50-p10-t100.zarr/group/zarr.json
 curl http://localhost:8080/n50-p10-t200.zarr/group/zarr.json
