@@ -12,7 +12,8 @@ use std::vec::Vec;
 //default destination => outputs/benchmark.nt
 const FILE_NAME: &str = "benchmark";
 //const FOLDER: &str = "outputs";
-const FOLDER: &str = "../zarr-files";
+const FOLDER_NT: &str = "../nt-files";
+const FOLDER_ZARR: &str = "../zarr-files";
 //default destination => outputs/root.zarr
 const ZARR_NAME: &str = "root";
 
@@ -23,8 +24,8 @@ fn main() {
     match args.len() {
         4 => {
             // Usage: cargo run <n_nodes> <n_predicates> <n_triples>
-            let file_path: String = format!("{}/{}.nt", FOLDER, FILE_NAME);
-            let zarr_path: String = format!("{}/{}.zarr", FOLDER, ZARR_NAME);
+            let file_path: String = format!("{}/{}.nt", FOLDER_NT, FILE_NAME);
+            let zarr_path: String = format!("{}/{}.zarr", FOLDER_ZARR, ZARR_NAME);
             let n_nodes: i128 = args[1].parse::<i128>().unwrap();
             let n_predicates: i128 = args[2].parse::<i128>().unwrap();
             let n_triples: i128 = args[3].parse::<i128>().unwrap();
@@ -33,9 +34,9 @@ fn main() {
         }
         5 => {
             //Usage: cargo run <benchmark_name> <n_nodes> <n_predicates> <n_triples>
-            let file_path: String = format!("{}/{}.nt", FOLDER, args[1].parse::<String>().unwrap());
+            let file_path: String = format!("{}/{}.nt", FOLDER_NT, args[1].parse::<String>().unwrap());
             let zarr_path: String =
-                format!("{}/{}.zarr", FOLDER, args[1].parse::<String>().unwrap());
+                format!("{}/{}.zarr", FOLDER_ZARR, args[1].parse::<String>().unwrap());
             let n_nodes: i128 = args[2].parse::<i128>().unwrap();
             let n_predicates: i128 = args[3].parse::<i128>().unwrap();
             let n_triples: i128 = args[4].parse::<i128>().unwrap();
@@ -45,7 +46,6 @@ fn main() {
         _ => {
             panic!(
                 "
-                Usage: cargo run <n_nodes> <n_predicates> <n_triples>
                 Usage: cargo run <file_name> <n_nodes> <n_predicates> <n_triples>
                 "
             );
@@ -73,7 +73,7 @@ fn create_file_nt(
     //prerequisites for creating the benchmar
     let name_generator = RNG::from(&Language::Elven);
     let mut rng = rand::thread_rng();
-    let _ = fs::create_dir(FOLDER);
+    let _ = fs::create_dir(FOLDER_NT);
     let mut file = File::create(file_path)?;
 
     //Initializing the vectors

@@ -1,7 +1,9 @@
 
 use remote_hdt::engine::EngineStrategy;
 use remote_hdt::storage::tabular::TabularLayout;
+use remote_hdt::storage::HTTPStorage;
 use remote_hdt::storage::LocalStorage;
+
 
 use std::time::Instant;
 use std::time::Duration;
@@ -14,41 +16,86 @@ use std::io::Write;
 
 const DATABASE_FOLDER: &str = "../zarr-files";
 const BENCHMARK_RESULTS_DESTINATION_FOLDER:  &str = "../results";
-const BENCHMARK_RESULTS_DESTINATION_FILE:  &str = "../results/benchmark.csv";
+const BENCHMARK_RESULTS_DESTINATION_FILE_LOCAL:  &str = "../results/local_benchmark.csv";
+const BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE:  &str = "../results/remote_benchmark.csv";
 const CSV_HEADER: &str = "file_name,get_subject_time,get_predicate_time,get_object_time";
+const DATABASE_URL: &str = "http://localhost:8080";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
+    if &args.len() != &(3 as usize){
+        panic!("
+            Usage cargo run <type_of_benchmark> <number_of_iterations>
+            type_of_benchmark = local || remote || all
+        ")
 
-    match args.len() {
-        2 =>{
-            let iterations: u8 = args[1].parse::<u8>().unwrap();
-            execute_all(iterations);
+    }
+   
+    let type_of_benchmark = args[1].parse::<String>().unwrap();
+    let iterations: u8 = (&args[2]).parse::<u8>().unwrap();
+    let zarr_files = &get_dot_zarr_files();
+
+    match type_of_benchmark.as_str() {
+        "local" =>{
+            local_execution(iterations,zarr_files);
+        },
+        "remote" =>{
+            remote_execution(iterations,zarr_files);
+        },
+        "all" =>{
+            execute_all(iterations, zarr_files);
         },
         _ =>{
-            execute_all(3);
+            execute_all(iterations, zarr_files);
         }
     }
+
+
 }
 
 
-fn execute_all(iterations: u8){
-    let files = get_dot_zarr_files();
+fn execute_all(iterations: u8, files:&Vec<String>){
+    local_execution(iterations,&files);
+    remote_execution(iterations, &files);   
+}
+
+
+fn local_execution(iterations: u8, files:&Vec<String>){
+    
     let mut times : Vec<(String, (Duration,Duration,Duration))> = vec![];
 
     for file in files {
         for _ in 0..iterations {
-            let benchmark_result = execute_benchmarks_with_zarr_rdf_database(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
+            let benchmark_result = execute_local_benchmarks(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
+
             times.push((file.clone() , benchmark_result));
         }
         
+        
     }
-    
-    write_csv(times);
-    
+    write_csv(times,BENCHMARK_RESULTS_DESTINATION_FILE_LOCAL);
+
 }
 
+
+
+fn remote_execution(iterations: u8, files:&Vec<String>){
+    
+    let mut times : Vec<(String, (Duration,Duration,Duration))> = vec![];
+
+    for file in files {
+        for _ in 0..iterations {
+            let benchmark_result = execute_remote_benchmarks(&format!("{}/{}", DATABASE_URL, file.clone()));
+
+            times.push((file.clone() , benchmark_result));
+        }
+        
+        
+    }
+    write_csv(times,BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE);
+
+}
 
 fn get_dot_zarr_files() -> Vec<String>{
     let paths = fs::read_dir(DATABASE_FOLDER).unwrap();
@@ -68,13 +115,21 @@ fn get_dot_zarr_files() -> Vec<String>{
 /**
  * commented lines are for when the get predicate operation is implemented
  */
-fn execute_benchmarks_with_zarr_rdf_database(zarr_path: &str) -> (Duration,Duration,Duration){
+fn execute_local_benchmarks(zarr_path: &str) -> (Duration,Duration,Duration){
     let subject_time = execute_subject_time(zarr_path);
 //    let predicate_time = execute_predicate_time(zarr_path);
     let object_time = execute_object_time(zarr_path);
 //    (subject_time,predicate_time,object_time)
       (subject_time,Duration::new(0, 0),object_time)
 }   
+
+fn execute_remote_benchmarks(zarr_url: &str) -> (Duration,Duration,Duration){
+    let subject_time = execute_subject_time_remote(zarr_url);
+    (subject_time,Duration::new(0, 0),Duration::new(0, 0))
+}   
+
+
+
 
 fn execute_subject_time(zarr_path: &str) -> std::time::Duration{
     let database = LocalStorage::new(TabularLayout).load(zarr_path).unwrap();
@@ -85,6 +140,16 @@ fn execute_subject_time(zarr_path: &str) -> std::time::Duration{
 
     subject_time
 }
+
+fn execute_subject_time_remote(zarr_url: &str) -> std::time::Duration{
+    let database = HTTPStorage::new(TabularLayout).connect(zarr_url).unwrap();
+    let before = Instant::now();
+    let _ = database.get_subject(0);
+    let subject_time = before.elapsed();
+
+    subject_time
+}
+
 
 /** 
 fn execute_predicate_time(zarr_path: &str) -> std::time::Duration{
@@ -107,13 +172,13 @@ fn execute_object_time(zarr_path: &str) -> std::time::Duration{
     object_time
 }
 
-fn write_csv(times: Vec<(String, (Duration, Duration, Duration))>){
+fn write_csv(times: Vec<(String, (Duration, Duration, Duration))>, destination_file: &str){
 
     if !folder_exists(&BENCHMARK_RESULTS_DESTINATION_FOLDER) {
         create_folder(&BENCHMARK_RESULTS_DESTINATION_FOLDER);
     }
     
-    let mut file = File::create(BENCHMARK_RESULTS_DESTINATION_FILE).unwrap();
+    let mut file = File::create(destination_file).unwrap();
     
     writeln!(file, "{}", CSV_HEADER).unwrap();
 

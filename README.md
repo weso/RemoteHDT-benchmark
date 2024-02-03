@@ -36,11 +36,32 @@ Having linux installed and rust
 
 ### Usage
 
-Standard process for running the project
+Standard process for running the project in local mode
+
 ```
 ./reset.sh 
 ./generate_RDF.sh <file_name> <n_nodes> <n_predicates> <n_triples> 
-./execute_benchmark.sh <number_of_iterations>
+./execute_benchmark.sh local <number_of_iterations>
+```
+
+Standard process for running the project with also remote benchmarking. For that set <type_of_benchmark> to "remote" or "all" 
+
+```
+./reset.sh 
+./generate_RDF.sh <file_name> <n_nodes> <n_predicates> <n_triples>
+./start_remote_server_simulation
+./execute_benchmark.sh <type_of_benchmark> <number_of_iterations>
+./stop_remote_server_simulation
+```
+
+Example of use case
+
+```
+./reset.sh 
+./generate_RDF.sh n50-p10-t300 50 10 300
+sudo ./start_remote_server_simulation.sh
+./execute_benchmark.sh all 5
+sudo ./stop_remote_server_simulation.sh
 ```
 
 #### reset.sh
@@ -61,12 +82,12 @@ Generates the RDF "database" in Zarr and Ntriples format so you can bench in oth
 
 ## Contributing
 
-Encourage others to contribute to the project. Specify guidelines for bug reports, feature requests, and code contributions.
+TO BE DONE
 
 ## License
 
-Specify the license under which your RDF Benchmarks project is distributed.
+TO BE DONE
 
 ## Acknowledgments
 
-Give credit to individuals or projects whose code, libraries, or resources were used or served as inspiration.
+TO BE DONE

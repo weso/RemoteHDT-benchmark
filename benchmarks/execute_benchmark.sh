@@ -6,16 +6,13 @@ if ! command -v cargo &> /dev/null; then
     exit 1
 fi
 
-# Check if the correct number of arguments is provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: cargo run <number_of_iterations>"
-    exit 1
-fi
+
 
 # Assign arguments to variables
 
 arg1="$1"
+arg2="$2"
 
 
 # Run the cargo command
-cargo run --release $arg1 
+cargo run --release $arg1 $arg2 
