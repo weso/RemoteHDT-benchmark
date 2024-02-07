@@ -1,4 +1,5 @@
 use rand::Rng;
+use remote_hdt::storage::matrix::MatrixLayout;
 use remote_hdt::storage::tabular::TabularLayout;
 use remote_hdt::storage::ChunkingStrategy;
 use remote_hdt::storage::LocalStorage;
@@ -9,60 +10,43 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::vec::Vec;
 
-//default destination => outputs/benchmark.nt
-const FILE_NAME: &str = "benchmark";
-//const FOLDER: &str = "outputs";
+
 const FOLDER_NT: &str = "../nt-files";
 const FOLDER_ZARR: &str = "../zarr-files";
-//default destination => outputs/root.zarr
-const ZARR_NAME: &str = "root";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-
+    
     //Different inputs
     match args.len() {
-        4 => {
-            // Usage: cargo run <n_nodes> <n_predicates> <n_triples>
-            let file_path: String = format!("{}/{}.nt", FOLDER_NT, FILE_NAME);
-            let zarr_path: String = format!("{}/{}.zarr", FOLDER_ZARR, ZARR_NAME);
-            let n_nodes: i128 = args[1].parse::<i128>().unwrap();
-            let n_predicates: i128 = args[2].parse::<i128>().unwrap();
-            let n_triples: i128 = args[3].parse::<i128>().unwrap();
-
-            create_benchmark_database(file_path, zarr_path, n_nodes, n_predicates, n_triples);
-        }
         5 => {
             //Usage: cargo run <benchmark_name> <n_nodes> <n_predicates> <n_triples>
             let file_path: String = format!("{}/{}.nt", FOLDER_NT, args[1].parse::<String>().unwrap());
-            let zarr_path: String =
-                format!("{}/{}.zarr", FOLDER_ZARR, args[1].parse::<String>().unwrap());
             let n_nodes: i128 = args[2].parse::<i128>().unwrap();
             let n_predicates: i128 = args[3].parse::<i128>().unwrap();
             let n_triples: i128 = args[4].parse::<i128>().unwrap();
+            let zarr_path_tabular: String =
+                    format!("{}/{}-tabular.zarr", FOLDER_ZARR, args[1].parse::<String>().unwrap());
+            let zarr_path_matrix: String =
+                    format!("{}/{}-matrix.zarr", FOLDER_ZARR, args[1].parse::<String>().unwrap());
+            
 
-            create_benchmark_database(file_path, zarr_path, n_nodes, n_predicates, n_triples);
-        }
+            create_file_nt(&file_path, n_nodes, n_predicates, n_triples).unwrap();
+
+            parse_to_zarr_tabular_layout(&zarr_path_tabular, &file_path);
+            parse_to_zarr_matrix_layout(&zarr_path_matrix, &file_path);
+        },
         _ => {
             panic!(
                 "
-                Usage: cargo run <file_name> <n_nodes> <n_predicates> <n_triples>
+                Usage for creating nt files: cargo run <file_name> <n_nodes> <n_predicates> <n_triples>
+                Usage for parsing nt files to zarr: cargo run <storage_strategy> 
                 "
             );
         }
     }
 }
 
-fn create_benchmark_database(
-    file_path: String,
-    zarr_path: String,
-    n_nodes: i128,
-    n_predicates: i128,
-    n_triples: i128,
-) {
-    create_file_nt(&file_path, n_nodes, n_predicates, n_triples).unwrap();
-    parse_to_zarr(&zarr_path, &file_path);
-}
 
 fn create_file_nt(
     file_path: &String,
@@ -122,8 +106,14 @@ fn create_file_nt(
     Ok(())
 }
 
-fn parse_to_zarr(zarr_path: &str, file_path: &str) {
+fn parse_to_zarr_tabular_layout(zarr_path: &str, file_path: &str) {
     LocalStorage::new(TabularLayout)
+        .serialize(zarr_path, file_path, ChunkingStrategy::Chunk)
+        .unwrap();
+}
+
+fn parse_to_zarr_matrix_layout(zarr_path: &str, file_path: &str) {
+    LocalStorage::new(MatrixLayout)
         .serialize(zarr_path, file_path, ChunkingStrategy::Chunk)
         .unwrap();
 }

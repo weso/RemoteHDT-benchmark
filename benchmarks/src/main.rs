@@ -22,6 +22,8 @@ const CSV_HEADER: &str = "file_name,get_subject_time,get_predicate_time,get_obje
 const DATABASE_URL: &str = "http://localhost:8080";
 
 fn main() {
+
+
     let args: Vec<String> = env::args().collect();
 
     if &args.len() != &(3 as usize){
@@ -47,7 +49,7 @@ fn main() {
             execute_all(iterations, zarr_files);
         },
         _ =>{
-            execute_all(iterations, zarr_files);
+            panic!("NOT A PARAMETER")
         }
     }
 
@@ -97,39 +99,25 @@ fn remote_execution(iterations: u8, files:&Vec<String>){
 
 }
 
-fn get_dot_zarr_files() -> Vec<String>{
-    let paths = fs::read_dir(DATABASE_FOLDER).unwrap();
-
-    let mut dot_zarr_files: Vec<String> = vec![];
-
-    for path in paths {
-        let path_name = path.unwrap().file_name().into_string().unwrap();
-        if path_name.contains(".zarr") {
-            dot_zarr_files.push(path_name);
-        }
-    }
-
-   dot_zarr_files
-}
-
 /**
  * commented lines are for when the get predicate operation is implemented
  */
 fn execute_local_benchmarks(zarr_path: &str) -> (Duration,Duration,Duration){
     let subject_time = execute_subject_time(zarr_path);
-//    let predicate_time = execute_predicate_time(zarr_path);
+    //let predicate_time = execute_predicate_time(zarr_path);
     let object_time = execute_object_time(zarr_path);
-//    (subject_time,predicate_time,object_time)
-      (subject_time,Duration::new(0, 0),object_time)
+    (subject_time,Duration::new(0, 0),object_time)
 }   
 
 fn execute_remote_benchmarks(zarr_url: &str) -> (Duration,Duration,Duration){
     let subject_time = execute_subject_time_remote(zarr_url);
-    (subject_time,Duration::new(0, 0),Duration::new(0, 0))
+    //let predicate_time = execute_predicate_time_remote(zarr_url);
+    let object_time = execute_object_time_remote(zarr_url);
+    (subject_time,Duration::new(0, 0),object_time)
 }   
 
 
-
+//---------------------------- Operations -------------------------
 
 fn execute_subject_time(zarr_path: &str) -> std::time::Duration{
     let database = LocalStorage::new(TabularLayout).load(zarr_path).unwrap();
@@ -151,7 +139,7 @@ fn execute_subject_time_remote(zarr_url: &str) -> std::time::Duration{
 }
 
 
-/** 
+
 fn execute_predicate_time(zarr_path: &str) -> std::time::Duration{
     let database = LocalStorage::new(TabularLayout).load(zarr_path).unwrap();
 
@@ -161,7 +149,17 @@ fn execute_predicate_time(zarr_path: &str) -> std::time::Duration{
 
     predicate_time
 }
-*/
+
+fn execute_predicate_time_remote(zarr_url: &str) -> std::time::Duration{
+    let database = HTTPStorage::new(TabularLayout).connect(zarr_url).unwrap();
+
+    let before = Instant::now();
+    let _ = database.get_predicate(0);
+    let predicate_time = before.elapsed();
+
+    predicate_time
+}
+
 fn execute_object_time(zarr_path: &str) -> std::time::Duration{
     let database = LocalStorage::new(TabularLayout).load(zarr_path).unwrap();
 
@@ -171,6 +169,38 @@ fn execute_object_time(zarr_path: &str) -> std::time::Duration{
 
     object_time
 }
+
+
+fn execute_object_time_remote(zarr_url: &str) -> std::time::Duration{
+    let database = HTTPStorage::new(TabularLayout).connect(zarr_url).unwrap();
+
+    let before = Instant::now();
+    let _ = database.get_object(0);
+    let object_time = before.elapsed();
+
+    object_time
+}
+
+
+//----------------------------- Utils for the execution --------------------------
+
+
+
+fn get_dot_zarr_files() -> Vec<String>{
+    let paths = fs::read_dir(DATABASE_FOLDER).unwrap();
+
+    let mut dot_zarr_files: Vec<String> = vec![];
+
+    for path in paths {
+        let path_name = path.unwrap().file_name().into_string().unwrap();
+        if path_name.contains(".zarr") {
+            dot_zarr_files.push(path_name);
+        }
+    }
+
+   dot_zarr_files
+}
+
 
 fn write_csv(times: Vec<(String, (Duration, Duration, Duration))>, destination_file: &str){
 
