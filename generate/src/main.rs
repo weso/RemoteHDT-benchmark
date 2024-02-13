@@ -1,8 +1,9 @@
 use rand::Rng;
-use remote_hdt::storage::matrix::MatrixLayout;
-use remote_hdt::storage::tabular::TabularLayout;
-use remote_hdt::storage::ChunkingStrategy;
-use remote_hdt::storage::LocalStorage;
+use remote_hdt::storage::layout::tabular::TabularLayout;
+use remote_hdt::storage::layout::matrix::MatrixLayout;
+use remote_hdt::storage::Storage;
+use remote_hdt::storage::params::{Backend, ChunkingStrategy, ReferenceSystem, Serialization};
+
 use rnglib::{Language, RNG};
 use std::env;
 use std::fs;
@@ -33,8 +34,8 @@ fn main() {
 
             create_file_nt(&file_path, n_nodes, n_predicates, n_triples).unwrap();
 
-            parse_to_zarr_tabular_layout(&zarr_path_tabular, &file_path);
-            parse_to_zarr_matrix_layout(&zarr_path_matrix, &file_path);
+            parse_to_zarr_tabular_layout(&zarr_path_tabular, &file_path, &(1000 as u64));
+            parse_to_zarr_matrix_layout(&zarr_path_matrix, &file_path, &(1000 as u64));
         },
         _ => {
             panic!(
@@ -106,14 +107,20 @@ fn create_file_nt(
     Ok(())
 }
 
-fn parse_to_zarr_tabular_layout(zarr_path: &str, file_path: &str) {
-    LocalStorage::new(TabularLayout)
-        .serialize(zarr_path, file_path, ChunkingStrategy::Chunk)
-        .unwrap();
+fn parse_to_zarr_tabular_layout(zarr_path: &str, file_path: &str, shard_size: &u64) {
+    Storage::new(TabularLayout, Serialization::Zarr).serialize(
+        Backend::FileSystem(zarr_path),
+        file_path,
+        ChunkingStrategy::Sharding(*shard_size),
+        ReferenceSystem::SPO,
+    ).unwrap();
 }
 
-fn parse_to_zarr_matrix_layout(zarr_path: &str, file_path: &str) {
-    LocalStorage::new(MatrixLayout)
-        .serialize(zarr_path, file_path, ChunkingStrategy::Chunk)
-        .unwrap();
+fn parse_to_zarr_matrix_layout(zarr_path: &str, file_path: &str, shard_size: &u64) {
+    Storage::new(MatrixLayout, Serialization::Zarr).serialize(
+        Backend::FileSystem(zarr_path),
+        file_path,
+        ChunkingStrategy::Sharding(*shard_size),
+        ReferenceSystem::SPO,
+    ).unwrap();
 }

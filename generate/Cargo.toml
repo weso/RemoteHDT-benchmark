@@ -6,10 +6,11 @@ edition = "2021"
 
 
 [dependencies]
-remote-hdt = {git = "https://github.com/weso/RemoteHDT"}
+remote-hdt = {git = "https://github.com/weso/RemoteHDT", branch = "use-variable-length-chunks-for-storing-the-triples"}
 rand = "0.8"
 random_name_generator = "0.3.6"
-
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = "0.5.0"

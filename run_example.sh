@@ -9,5 +9,5 @@
 
 
 ./reset.sh 
-./generate_RDF.sh n1000000-p1000-t100000000 1000000 1000 100000000
+./generate_RDF.sh n1000-p10-t10000 1000 10 10000
 ./execute_benchmark.sh local 5
