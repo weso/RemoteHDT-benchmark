@@ -74,9 +74,11 @@ fn local_execution(iterations: u8, files:&Vec<String>){
     for file in files {
         let zarr_path = &format!("{}/{}", DATABASE_FOLDER, file.clone());
 
-        for _ in 0..iterations {
+        
             
             if file.contains("matrix"){
+
+                for _ in 0..iterations {
                 let mut binding = Storage::new(MatrixLayout, Serialization::Zarr);
 
                 print!("{}", zarr_path);
@@ -85,15 +87,20 @@ fn local_execution(iterations: u8, files:&Vec<String>){
                 let results = execute_benchmark::<_>(&format!("{}/{}", DATABASE_FOLDER, file.clone()), arr);
                 times.push((file.clone() , results));
             }
-            
+
+            }
+        
+        
             if file.contains("tabular"){
+                for _ in 0..iterations {
                 let mut binding = Storage::new(TabularLayout, Serialization::Zarr);
                 let arr = binding.load(Backend::FileSystem(&zarr_path.as_str())).unwrap();
 
                 let results = execute_benchmark::<_>(&format!("{}/{}", DATABASE_FOLDER, file.clone()), arr);
                 times.push((file.clone() , results));
             }
-        }
+            }
+       
         
         
     }
@@ -103,30 +110,51 @@ fn local_execution(iterations: u8, files:&Vec<String>){
 
 
 
+
+
 fn remote_execution(iterations: u8, files:&Vec<String>){
-    
     let mut times : Vec<(String, (Duration,Duration,Duration))> = vec![];
 
     for file in files {
-        for _ in 0..iterations {
-            //let benchmark_result = execute_remote_benchmarks(&format!("{}/{}", DATABASE_URL, file.clone()));
-            
-            //times.push((file.clone() , benchmark_result));
-        }
-        get_subject_zarr(&format!("{}/{}", DATABASE_FOLDER, file.clone()));
+        let zarr_path = &format!("{}/{}", DATABASE_URL, file.clone());
+            if file.contains("matrix"){
+
+                for _ in 0..iterations {
+                let mut binding = Storage::new(MatrixLayout, Serialization::Zarr);
+
+                print!("{}", zarr_path);
+                let arr = binding.load(Backend::HTTP(&zarr_path.as_str())).unwrap();
+
+                let results = execute_benchmark::<_>(&format!("{}/{}", DATABASE_FOLDER, file.clone()), arr);
+                times.push((file.clone() , results));
+            }
+
+            }
+        
+        
+            if file.contains("tabular"){
+                for _ in 0..iterations {
+                let mut binding = Storage::new(TabularLayout, Serialization::Zarr);
+                let arr = binding.load(Backend::FileSystem(&zarr_path.as_str())).unwrap();
+
+                let results = execute_benchmark::<_>(&format!("{}/{}", DATABASE_FOLDER, file.clone()), arr);
+                times.push((file.clone() , results));
+            }
+            }
+       
+        
         
     }
-    //write_csv(times,BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE);
-
+    write_csv(times,BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE);
 }
 
 /**
  * commented lines are for when the get predicate operation is implemented
  */
 fn execute_benchmark<T>(zarr_path: &str, arr:&Storage<T>) -> (Duration,Duration,Duration){
-    let first_term = execute_get_first_term( arr, get_subject_zarr(zarr_path).as_str());//TODO
+    let first_term = execute_get_first_term( arr, get_subject_zarr(zarr_path).as_str());
     let second_term = Duration::new(0, 0);
-    let third_term = Duration::new(0, 0);
+    let third_term = execute_get_third_term( arr, get_subject_zarr(zarr_path).as_str());
     (first_term,second_term,third_term)
 }   
 
@@ -140,6 +168,15 @@ fn execute_get_first_term<T>(  arr:&Storage<T>, first_term:&str )-> Duration{
     let _ = arr.get_subject(first_term);
     before.elapsed()
 }
+
+
+fn execute_get_third_term<T>(  arr:&Storage<T>, first_term:&str )-> Duration{
+
+    let before = Instant::now();
+    let _ = arr.get_object(first_term);
+    before.elapsed()
+}
+
 //----------------------------- Utils for the execution --------------------------
 
 
@@ -215,4 +252,32 @@ fn get_subject_zarr(zarr_path: &str) -> String{
    
 }
 
-fn get_predicate_zarr(){}
+#[warn(dead_code)]
+fn get_predicate_zarr(zarr_path: &str) -> String{
+
+    let mut file = File::open(format!("{}/{}", zarr_path,"group/RemoteHDT/zarr.json")).expect("Unable to open file");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .expect("Unable to read file");
+
+    let json: Value = serde_json::from_str(&contents).expect("Unable to parse JSON");
+    
+
+    
+    let json_str = serde_json::to_string(&json["attributes"]["predicates"][0]).expect("Unable to convert JSON to string");
+   
+   
+
+
+    // Find the index of the first < and the last >
+    let start_index = json_str.find('<').unwrap_or(0);
+    let end_index = json_str.rfind('>').unwrap_or(json_str.len());
+ 
+
+    // Extract the substring between the < and >
+    let result = json_str[start_index..end_index + 1].to_string();
+
+    result
+   
+
+}
