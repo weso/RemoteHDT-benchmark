@@ -22,7 +22,7 @@ const DATABASE_FOLDER: &str = "../zarr-files";
 const BENCHMARK_RESULTS_DESTINATION_FOLDER:  &str = "../results";
 const BENCHMARK_RESULTS_DESTINATION_FILE_LOCAL:  &str = "../results/local_benchmark.csv";
 const BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE:  &str = "../results/remote_benchmark.csv";
-const CSV_HEADER: &str = "file_name,first_term,second_term,third_term";
+const CSV_HEADER: &str = "file_name,get_subject,get_predicate,get_object";
 const DATABASE_URL: &str = "http://localhost:8080";
 
 fn main() {
@@ -152,9 +152,9 @@ fn remote_execution(iterations: u8, files:&Vec<String>){
  * commented lines are for when the get predicate operation is implemented
  */
 fn execute_benchmark<T>(zarr_path: &str, arr:&Storage<T>) -> (Duration,Duration,Duration){
-    let first_term = execute_get_first_term( arr, get_subject_zarr(zarr_path).as_str());
+    let first_term = execute_get_first_term( arr, get_node_zarr(zarr_path).as_str());
     let second_term = Duration::new(0, 0);
-    let third_term = execute_get_third_term( arr, get_subject_zarr(zarr_path).as_str());
+    let third_term = execute_get_third_term( arr, get_node_zarr(zarr_path).as_str());
     (first_term,second_term,third_term)
 }   
 
@@ -225,7 +225,7 @@ fn create_folder(folder_path: &str) {
     }
 }
 
-fn get_subject_zarr(zarr_path: &str) -> String{
+fn get_node_zarr(zarr_path: &str) -> String{
     let mut file = File::open(format!("{}/{}", zarr_path,"group/RemoteHDT/zarr.json")).expect("Unable to open file");
     let mut contents = String::new();
     file.read_to_string(&mut contents)
