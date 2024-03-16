@@ -22,7 +22,7 @@ const DATABASE_FOLDER: &str = "../zarr-files";
 const BENCHMARK_RESULTS_DESTINATION_FOLDER:  &str = "../results";
 const BENCHMARK_RESULTS_DESTINATION_FILE_LOCAL:  &str = "../results/local_benchmark.csv";
 const BENCHMARK_RESULTS_DESTINATION_FILE_REMOTE:  &str = "../results/remote_benchmark.csv";
-const CSV_HEADER: &str = "file_name,first_term,second_term,third_term";
+const CSV_HEADER: &str = "file_name,get_subject,get_predicate,get_object";
 const DATABASE_URL: &str = "http://localhost:8080";
 
 fn main() {
@@ -80,8 +80,6 @@ fn local_execution(iterations: u8, files:&Vec<String>){
 
                 for _ in 0..iterations {
                 let mut binding = Storage::new(MatrixLayout, Serialization::Zarr);
-
-                print!("{}", zarr_path);
                 let arr = binding.load(Backend::FileSystem(&zarr_path.as_str())).unwrap();
 
                 let results = execute_benchmark::<_>(&format!("{}/{}", DATABASE_FOLDER, file.clone()), arr);
@@ -122,7 +120,6 @@ fn remote_execution(iterations: u8, files:&Vec<String>){
                 for _ in 0..iterations {
                 let mut binding = Storage::new(MatrixLayout, Serialization::Zarr);
 
-                print!("{}", zarr_path);
                 let arr = binding.load(Backend::HTTP(&zarr_path.as_str())).unwrap();
 
                 let results = execute_benchmark::<_>(&format!("{}/{}", DATABASE_FOLDER, file.clone()), arr);
@@ -152,9 +149,9 @@ fn remote_execution(iterations: u8, files:&Vec<String>){
  * commented lines are for when the get predicate operation is implemented
  */
 fn execute_benchmark<T>(zarr_path: &str, arr:&Storage<T>) -> (Duration,Duration,Duration){
-    let first_term = execute_get_first_term( arr, get_subject_zarr(zarr_path).as_str());
-    let second_term = Duration::new(0, 0);
-    let third_term = execute_get_third_term( arr, get_subject_zarr(zarr_path).as_str());
+    let first_term = execute_get_subject( arr, get_subject_zarr(zarr_path).as_str());
+    let second_term = execute_get_predicate( arr, get_subject_zarr(zarr_path).as_str());
+    let third_term = execute_get_object( arr, get_subject_zarr(zarr_path).as_str());
     (first_term,second_term,third_term)
 }   
 
@@ -162,15 +159,21 @@ fn execute_benchmark<T>(zarr_path: &str, arr:&Storage<T>) -> (Duration,Duration,
 
 
 //---------------------------- Operations -------------------------
-fn execute_get_first_term<T>(  arr:&Storage<T>, first_term:&str )-> Duration{
+fn execute_get_subject<T>(  arr:&Storage<T>, first_term:&str )-> Duration{
 
     let before = Instant::now();
     let _ = arr.get_subject(first_term);
     before.elapsed()
 }
 
+fn execute_get_predicate<T>(  arr:&Storage<T>, first_term:&str )-> Duration{
+    
+    let before = Instant::now();
+    let _ = arr.get_predicate(first_term);
+    before.elapsed()
+}
 
-fn execute_get_third_term<T>(  arr:&Storage<T>, first_term:&str )-> Duration{
+fn execute_get_object<T>(  arr:&Storage<T>, first_term:&str )-> Duration{
 
     let before = Instant::now();
     let _ = arr.get_object(first_term);

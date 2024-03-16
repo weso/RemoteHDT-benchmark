@@ -7,8 +7,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-remote-hdt = {git = "https://github.com/weso/RemoteHDT", branch = "use-variable-length-chunks-for-storing-the-triples"}
-zarrs = { version = "0.8.0", default-features = false, features = [ "http", "gzip", "sharding" ] }
+remote-hdt = {git = "https://github.com/weso/RemoteHDT"}
+
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
