@@ -6,13 +6,9 @@ if ! command -v cargo &> /dev/null; then
     exit 1
 fi
 
-
-
 # Assign arguments to variables
-
 arg1="$1"
 arg2="$2"
 
-
 # Run the cargo command
-cargo run --release $arg1 $arg2 
+cargo run --release -- -i  $arg1 -f ../zarr-files/*.zarr --context $arg2

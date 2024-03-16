@@ -6,7 +6,7 @@ edition = "2021"
 
 
 [dependencies]
-remote-hdt = {git = "https://github.com/weso/RemoteHDT", branch = "use-variable-length-chunks-for-storing-the-triples"}
+remote-hdt = {git = "https://github.com/weso/RemoteHDT", branch = "master"}
 rand = "0.8"
 random_name_generator = "0.3.6"
 serde = { version = "1.0", features = ["derive"] }

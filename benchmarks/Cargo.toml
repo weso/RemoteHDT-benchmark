@@ -4,11 +4,7 @@ name = "bechmarks"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-remote-hdt = {git = "https://github.com/weso/RemoteHDT"}
-
-
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+remote-hdt = {git = "https://github.com/weso/RemoteHDT", branch = "master"}
+rand = "0.8.5"
+clap = { version = "4.5.3", features = ["derive"] }
