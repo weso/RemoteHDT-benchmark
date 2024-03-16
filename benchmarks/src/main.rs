@@ -150,8 +150,8 @@ fn remote_execution(iterations: u8, files:&Vec<String>){
  */
 fn execute_benchmark<T>(zarr_path: &str, arr:&Storage<T>) -> (Duration,Duration,Duration){
     let first_term = execute_get_subject( arr, get_subject_zarr(zarr_path).as_str());
-    let second_term = execute_get_predicate( arr, get_subject_zarr(zarr_path).as_str());
-    let third_term = execute_get_object( arr, get_subject_zarr(zarr_path).as_str());
+    let second_term = execute_get_predicate( arr, get_predicate_zarr(zarr_path).as_str());
+    let third_term = execute_get_object( arr, get_object(zarr_path).as_str());
     (first_term,second_term,third_term)
 }   
 
@@ -228,7 +228,7 @@ fn create_folder(folder_path: &str) {
     }
 }
 
-fn get_subject_zarr(zarr_path: &str) -> String{
+fn get_node_zarr(zarr_path: &str) -> String{
     let mut file = File::open(format!("{}/{}", zarr_path,"group/RemoteHDT/zarr.json")).expect("Unable to open file");
     let mut contents = String::new();
     file.read_to_string(&mut contents)
