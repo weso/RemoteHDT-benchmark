@@ -5,9 +5,8 @@ RESULTS_FOLDER="./results"
 ZARR_FILES_FOLDER="./zarr-files"
 NT_FILES="./nt-files"
 
-# Check if the folders exist before attempting to delete them
-if [ -d "$RESULTS_FOLDER" ] || [ -d "$ZARR_FILES_FOLDER" ]; then
-    # Delete the results folder and its contents
+
+ # Delete the results folder and its contents
     rm -rf "$RESULTS_FOLDER"
 
     # Delete the zarr-files folder and its contents
@@ -15,7 +14,3 @@ if [ -d "$RESULTS_FOLDER" ] || [ -d "$ZARR_FILES_FOLDER" ]; then
 
     rm -rf "$NT_FILES"
 
-    echo "Folders deleted successfully."
-else
-    echo "Error: One or both folders do not exist."
-fi
